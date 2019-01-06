@@ -159,7 +159,7 @@ def root_or_fallback(root_for_relative_paths, abs_source_paths):
             return abs_source_paths[0]
 
 
-def doclet_full_path(d, base_dir, longname_field='longname'):
+def doclet_full_path(dd, base_dir, jslanguage, longname_field='longname'):
     """Return the full, unambiguous list of path segments that points to an
     entity described by a doclet.
 
@@ -170,21 +170,26 @@ def doclet_full_path(d, base_dir, longname_field='longname'):
     :arg longname_field: The field to look in at the top level of the doclet
         for the long name of the object to emit a path to
     """
-    meta = d['meta']
-    rel = relpath(meta['path'], base_dir)
-    rel = '/'.join(rel.split(sep))
-    if not rel.startswith(('../', './')) and rel not in ('..', '.'):
-        # It just starts right out with the name of a folder in the cwd.
-        rooted_rel = './%s' % rel
-    else:
-        rooted_rel = rel
+    if jslanguage != 'typescript':
+        meta = d['meta']
+        rel = relpath(meta['path'], base_dir)
+        rel = '/'.join(rel.split(sep))
+        if not rel.startswith(('../', './')) and rel not in ('..', '.'):
+            # It just starts right out with the name of a folder in the cwd.
+            rooted_rel = './%s' % rel
+        else:
+            rooted_rel = rel
 
-    # Building up a string and then parsing it back down again is probably
-    # not the fastest approach, but it means knowledge of path format is in
-    # one place: the parser.
-    path = '%s/%s.%s' % (rooted_rel,
-                         splitext(meta['filename'])[0],
-                         d[longname_field])
+        # Building up a string and then parsing it back down again is probably
+        # not the fastest approach, but it means knowledge of path format is in
+        # one place: the parser.
+        path = '%s/%s.%s' % (rooted_rel,
+                             splitext(meta['filename'])[0],
+                             d[longname_field])
+    else:
+        item = d[longname_field].split(':')[-1]
+        path = '%s%s' % (d['meta']['path'], item)
+
     return PathVisitor().visit(
         path_and_formal_params['path'].parse(path))
 

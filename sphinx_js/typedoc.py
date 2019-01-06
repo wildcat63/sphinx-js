@@ -208,12 +208,12 @@ class TypeDoc(object):
         return self.make_doclet(
             kind=kind,
             access=access,
-            comment=node.get('comment', {}).get('text', '<empty>'),
+            comment=self.make_description(comment),
             meta=self.make_meta(node),
             name=node.get('name'),
             longname=self.make_longname(node),
             memberof=memberof,
-            description=self.make_description(comment)
+            description=node.get('comment', {}).get('shortText', ''),
         )
 
     def convert_node(self, node):
